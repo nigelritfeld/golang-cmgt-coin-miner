@@ -74,4 +74,3 @@ this project.
 Sources:
 
 - [GopherCon 2020: Dylan Meeus - Functional Programming with Go](https://www.youtube.com/watch?v=wqs8n5Uk5OM&ab_channel=GopherAcademy)
-- 

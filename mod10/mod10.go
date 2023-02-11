@@ -27,9 +27,6 @@ func byteToSlice(n byte, sequence []int) []int {
 func StringToAsciiBytes(str string) []int {
 	// converting and printing Byte array
 	data := []byte(str)
-	//fmt.Printf("Converting %s to ascii", str)
-	//fmt.Println()
-	//fmt.Println(data)
 	var series []int
 	var a []int
 	//Checking if ascii code is a number
@@ -43,9 +40,6 @@ func StringToAsciiBytes(str string) []int {
 			series = append(series, slice...)
 		}
 	}
-
-	//fmt.Printf("The finished series has a capacity of %d", len(series))
-
 	return series
 
 }
@@ -55,16 +49,13 @@ func ChunkSlice(slice []int, chunkSize int) [][]int {
 	var chunks [][]int
 	for i := 0; i < len(slice); i += chunkSize {
 		end := i + chunkSize
-
 		// necessary check to avoid slicing beyond
 		// slice capacity
 		if end > len(slice) {
 			end = len(slice)
 		}
-
 		chunks = append(chunks, slice[i:end])
 	}
-
 	return chunks
 }
 
@@ -73,6 +64,7 @@ func hashToHexString(hash string) string {
 	return fmt.Sprintf("%x", hash)
 }
 
+// HashSHA256 Hashes input with SHA256 Algorithm
 func HashSHA256(input string) string {
 	h := sha256.New()
 	h.Write([]byte(input))
@@ -80,6 +72,7 @@ func HashSHA256(input string) string {
 	return hashToHexString(string(hash))
 }
 
+// IntegerSliceToString Transforms byte to slice with seperate integers
 func IntegerSliceToString(slice []int) string {
 	var IDs []string
 	for _, i := range slice {
@@ -102,31 +95,19 @@ func PopulateSequence(remainder int, sequence []int) []int {
 	return append(roundedSequence, populatedSequence...)
 }
 
+// SumSequence Sums the integers in the slice and returns the remainder
 func SumSequence(chunks [][]int) []int {
 	var sequence []int
-
 	for i, number := range chunks[0] {
 		sequence = append(sequence, (number+chunks[1][i])%10)
 	}
-	// Log the sum to the console
-	//fmt.Println()
-	//fmt.Println(chunks[0])
-	//fmt.Println("-------------------- + mod(10)")
-	//fmt.Println(chunks[1])
-	//fmt.Println("sequence:")
-	//fmt.Println(sequence)
-	//fmt.Println("--------------")
 	return sequence
 }
 
+// Sum performs calculations on nested slices
 func Sum(arr [][]int, n int) [][]int {
 	//Length of array is equal to one we know if there is nothing left to multiply
 	if n == 1 {
-		//fmt.Println()
-		//fmt.Println("-------------------------")
-		//fmt.Printf("Finished multiplying sequence %d", arr)
-		//fmt.Println()
-		//fmt.Println("-------------------------")
 		return arr
 	}
 	multiplySequences := arr[:2]
@@ -136,10 +117,10 @@ func Sum(arr [][]int, n int) [][]int {
 	return Sum(sequences, len(sequences))
 }
 
+// HashPayload Hashes input using the Luhn algorithm and sha256
 func HashPayload(payload string) string {
 	strippedPayload := Strip(payload)
 	bytes := StringToAsciiBytes(strippedPayload)
-	//fmt.Println(bytes)
 	remainder := len(bytes) % 10
 	if remainder != 0 {
 		bytes = PopulateSequence(remainder, bytes)
