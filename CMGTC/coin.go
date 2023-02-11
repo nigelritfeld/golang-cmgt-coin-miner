@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// GetLatestBlock Sends request to CMGTC for new Block
+// GetLatestBlock Sends request to blockchain for new Block
 // If the received block is open it returns the block
 // Else the program sleeps until the countdown has finished and restarts
 func GetLatestBlock(url string) BlockResponse {
