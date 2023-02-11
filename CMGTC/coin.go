@@ -1,4 +1,4 @@
-package blockchain
+package CMGTC
 
 import (
 	"encoding/json"
@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// GetLatestBlock Sends request to blockchain for new Block
+// GetLatestBlock Sends request to CMGTC for new Block
 // If the received block is open it returns the block
 // Else the program sleeps until the countdown has finished and restarts
 func GetLatestBlock(url string) BlockResponse {
@@ -30,44 +30,51 @@ func GetLatestBlock(url string) BlockResponse {
 	}
 	//If block is open for mining we return the block
 	if block.Open {
+		fmt.Printf("[Found block]: Block ID #%s", block.Blockchain.ID)
+		fmt.Println()
 		return block
 	} else {
 		//If block not open, wait till countdown is finished and restart
 		seconds := block.Countdown / 1000
-		fmt.Printf("[LOOKING FOR BLOCK]Block %s is currently pending, waiting %d seconds before retreiving next block", block.Blockchain.Hash, seconds)
+		fmt.Printf("[BLOCKCHAIN PENDING]Block %s is currently pending, waiting %d seconds before retreiving next block", block.Blockchain.Hash, seconds)
 		fmt.Println()
 		time.Sleep(time.Duration(seconds))
 		return GetLatestBlock(url)
 	}
 }
 
-// isValidHash Callback function to check whether the hash is valid
-func isValidHash(str string, value string) bool {
-	firstFour := str[:4]
-	return firstFour == value
+// MineBlock Starts mining process
+func MineBlock(block BlockResponse) (int, string) {
+	LastBlockString := block.Blockchain.Hash + GetDataListFromBlock(block) + strconv.FormatInt(block.Blockchain.Timestamp, 10) + block.Blockchain.Nonce
+	lastBlockHash := mod10.HashPayload(LastBlockString)
+	fmt.Printf("[Mining block]: Block hash - %s", lastBlockHash)
+	fmt.Println()
+	transactionsList := ""
+	for _, transaction := range block.Transactions {
+		trans := transaction.From + transaction.To + strconv.Itoa(transaction.Amount) + strconv.FormatInt(transaction.Timestamp, 10)
+		transactionsList = transactionsList + trans
+	}
+	blockTimeStamp := block.Timestamp
+	newBlockString := lastBlockHash + GetTransactionListFromBlock(block) + strconv.FormatInt(blockTimeStamp, 10)
+
+	return FindNonce(newBlockString)
+
 }
 
 // FindNonce Tries different nonce's till a valid hash is generated
 func FindNonce(block string) (int, string) {
 	nonce, hash := TryNonce(block, isValidHash, 0)
+	fmt.Printf("[Found nonce]: new block hash - %s", hash)
+	fmt.Println()
 	return nonce, hash
 }
 
-// TryNonce tries different nonce's and validates generated hash
-func TryNonce(block string, condition Callback, n int) (int, string) {
-	hash := mod10.HashPayload(block + strconv.Itoa(n))
-	if condition(hash, "0000") {
-		return n, hash
-	}
-	return TryNonce(block, isValidHash, n+1)
-}
-
-// RequestPayout Send request to blockchain for reward
+// RequestPayout Send request to CMGTC for reward
 func RequestPayout(nonce int, user string) {
 	type Result struct {
 		Data string `json:"data"`
 	}
-	client := req.C().DevMode()
+	client := req.C()
 	var result Result
 	type Payload struct {
 		Nonce string `json:"nonce"`
@@ -78,44 +85,10 @@ func RequestPayout(nonce int, user string) {
 		SetBody(&Payload{Nonce: strconv.Itoa(nonce), User: user}).
 		SetSuccessResult(&result).
 		Post("https://programmeren9.cmgt.hr.nl:8000/api/blockchain")
-
-	fmt.Println("response")
-	fmt.Println(resp.Body)
+	fmt.Printf("[Requested award]: %s", resp.String())
 	if err != nil {
 		log.Fatal(err)
 	}
-}
-
-// getTransactionString Creates string from transaction
-func getTransactionString(transaction struct {
-	from      string
-	to        string
-	amount    int
-	timestamp int64
-}) string {
-	return transaction.from + transaction.to + strconv.Itoa(transaction.amount) + strconv.FormatInt(transaction.timestamp, 10)
-}
-
-// makeTransactionFromBlockData Converts BlockchainTransactionFields type to Transaction
-func makeTransactionFromBlockData(transaction BlockchainTransactionFields) Transaction {
-	resp := Transaction{}
-	resp.from = transaction.Cfrom()
-	resp.to = transaction.Cto()
-	resp.amount = transaction.Camount()
-	resp.timestamp = transaction.Ctimestamp()
-
-	return resp
-}
-
-// makeTransactionFromBlock Converts BlockTransactionFields type to Transaction
-func makeTransactionFromBlock(transaction BlockTransactionFields) Transaction {
-	resp := Transaction{}
-	resp.from = transaction.from()
-	resp.to = transaction.to()
-	resp.amount = transaction.amount()
-	resp.timestamp = transaction.timestamp()
-
-	return resp
 }
 
 // GetTransactionListFromBlock Creates string with transactions
@@ -124,8 +97,6 @@ func GetTransactionListFromBlock(block BlockResponse) string {
 	for _, data := range block.Transactions {
 		transactionList = transactionList + getTransactionString(makeTransactionFromBlock(data))
 	}
-	fmt.Println("TRANSACTIONLIST")
-	fmt.Println(transactionList)
 	return transactionList
 }
 

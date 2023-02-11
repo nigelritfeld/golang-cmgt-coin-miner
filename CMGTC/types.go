@@ -1,4 +1,4 @@
-package blockchain
+package CMGTC
 
 type Callback func(string, string) bool
 
