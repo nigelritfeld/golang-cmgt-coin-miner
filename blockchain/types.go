@@ -1,22 +1,6 @@
-package network
+package blockchain
 
-import "fmt"
-
-//type BlockResponse []struct {
-//	ID        string `json:"_id"`
-//	Algorithm string `json:"algorithm"`
-//	Hash      string `json:"hash"`
-//	Nonce     string `json:"nonce"`
-//	Timestamp int64  `json:"timestamp"`
-//	V         int    `json:"__v"`
-//	Data      []struct {
-//		ID        string `json:"_id"`
-//		From      string `json:"from"`
-//		To        string `json:"to"`
-//		Amount    int    `json:"amount"`
-//		Timestamp int64  `json:"timestamp"`
-//	} `json:"data"`
-//}
+type Callback func(string, string) bool
 
 type BlockResponse struct {
 	Blockchain struct {
@@ -40,6 +24,7 @@ type Transaction struct {
 	amount    int
 	timestamp int64
 }
+
 type TransactionList struct {
 	Transactions []struct {
 		ID        string `json:"_id"`
@@ -50,8 +35,6 @@ type TransactionList struct {
 		V         int    `json:"__v"`
 	} `json:"transactions"`
 }
-
-//type From string
 
 type BlockTransaction interface {
 	BlockTransactionFields
@@ -94,6 +77,7 @@ type BlockTransactionMethods interface {
 	timestamp() int64
 }
 
+// BlockchainTransactionMethods
 func (transaction *BlockchainTransactionFields) Cfrom() string {
 	return transaction.From
 }
@@ -108,11 +92,10 @@ func (transaction *BlockchainTransactionFields) Ctimestamp() int64 {
 	return transaction.Timestamp
 }
 
+// BlockTransactionMethods
 func (transaction *BlockTransactionFields) from() string {
-	fmt.Println("return s.From")
 	return transaction.From
 }
-
 func (transaction *BlockTransactionFields) to() string {
 	return transaction.To
 }
