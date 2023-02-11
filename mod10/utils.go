@@ -63,7 +63,7 @@ func hashToHexString(hash string) string {
 	return fmt.Sprintf("%x", hash)
 }
 
-// IntegerSliceToString Transforms byte to slice with seperate integers
+// IntegerSliceToString Transforms byte to slice with separate integers
 func IntegerSliceToString(slice []int) string {
 	var IDs []string
 	for _, i := range slice {
