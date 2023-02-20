@@ -5,6 +5,8 @@
 This project is a introduction assignment about blockchain. The program needs to interact with a public blockchain
 hosted on school servers. This blockchain is accessible via a web service.
 
+https://programmeren9.cmgt.hr.nl:8000/api/blockchain
+
 ## Run program
 
 This miner is written in [Go](https://go.dev/). To compile and run this project you need to [download](https://go.dev/dl/) and install the latest stable version.
