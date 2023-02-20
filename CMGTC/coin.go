@@ -45,6 +45,7 @@ func GetLatestBlock(url string) BlockResponse {
 
 // MineBlock Starts mining process
 func MineBlock(block BlockResponse) (int, string) {
+	defer Timer("Mining CMGT Coin")()
 	LastBlockString := block.Blockchain.Hash + GetDataListFromBlock(block) + strconv.FormatInt(block.Blockchain.Timestamp, 10) + block.Blockchain.Nonce
 	lastBlockHash := mod10.HashPayload(LastBlockString)
 	fmt.Printf("[Mining block]: Block hash - %s", lastBlockHash)
@@ -58,7 +59,6 @@ func MineBlock(block BlockResponse) (int, string) {
 	newBlockString := lastBlockHash + GetTransactionListFromBlock(block) + strconv.FormatInt(blockTimeStamp, 10)
 
 	return FindNonce(newBlockString)
-
 }
 
 // FindNonce Tries different nonce's till a valid hash is generated

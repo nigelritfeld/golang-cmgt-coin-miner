@@ -1,9 +1,19 @@
 package CMGTC
 
 import (
+	"fmt"
 	"golang-cmgt-coin-miner/mod10"
 	"strconv"
+	"time"
 )
+
+func Timer(name string) func() {
+	start := time.Now()
+	return func() {
+		fmt.Println()
+		fmt.Printf("%s took %v\n", name, time.Since(start))
+	}
+}
 
 // TryNonce tries different nonce's and validates generated hash
 func TryNonce(block string, condition Callback, n int) (int, string) {
@@ -11,7 +21,7 @@ func TryNonce(block string, condition Callback, n int) (int, string) {
 	if condition(hash, "0000") {
 		return n, hash
 	}
-	return TryNonce(block, isValidHash, n+1)
+	return TryNonce(block, condition, n+1)
 }
 
 // isValidHash Callback function to check whether the hash is valid
